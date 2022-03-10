@@ -25,7 +25,10 @@ public class Car {
 
     public void moveOrTurn() {
         if (canMoveForward()) {
-
+            //TODO
+        }
+        else{
+            //TODO
         }
     }
 
