@@ -2,9 +2,9 @@ package hu.petrik.crossroad;
 
 public enum Direction {
     UP(0, "up", "↑"),
-    DOWN(1, "down", "↓"),
-    LEFT(2, "left", "←"),
-    RIGHT(3, "right", "→");
+    RIGHT(1, "right", "→"),
+    DOWN(2, "down", "↓"),
+    LEFT(3, "left", "←");
 
     private final String name;
     private final String arrow;
@@ -28,18 +28,28 @@ public enum Direction {
         return way;
     }
 
+    public static Direction rotateLeft(Direction direction) {
+        return Direction.fromWay(direction.way - 1);
+    }
+
+    public static Direction rotateRight(Direction direction) {
+        return Direction.fromWay(direction.way + 1);
+    }
+
+    public static Direction turnAround(Direction direction) {
+        return Direction.fromWay(direction.way + 2);
+    }
+
     public static Direction fromWay(int way) {
-        switch (way) {
+        switch (way % 4) {
             case 0:
                 return UP;
             case 1:
-                return DOWN;
-            case 2:
-                return LEFT;
-            case 3:
                 return RIGHT;
+            case 2:
+                return DOWN;
             default:
-                throw new IllegalArgumentException();
+                return LEFT;
         }
     }
 }

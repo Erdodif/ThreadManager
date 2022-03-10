@@ -3,26 +3,69 @@ package hu.petrik.crossroad;
 import java.util.Random;
 
 public class Car {
-    private int coordinateX;
-    private int coordinateY;
+    private Position position;
     private Direction direction;
     private Direction from;
     private Random random;
+    private Map map;
 
-    public Car(int x, int y){
-        this.coordinateX = x;
-        this.coordinateY = y;
+    public Car(Map map, int x, int y) {
+        this.position = new Position(x,y);
         random = new Random();
         this.direction = Direction.fromWay(random.nextInt(4));
         this.from = null;
     }
 
+    public Car(Map map, Position position) {
+        this.position = position;
+        random = new Random();
+        this.direction = Direction.fromWay(random.nextInt(4));
+        this.from = null;
+    }
+
+    public void moveOrTurn() {
+        if (canMoveForward()) {
+
+        }
+    }
+
+    public Position getPositionAhead(){
+        switch (getDirection()){
+            case UP:
+                return this.position.getAbove(map.getHeight());
+            case DOWN:
+                return this.position.getBelow(map.getHeight());
+            case LEFT:
+                return this.position.getToLeft(map.getWidth());
+            default:
+                return this.position.getToRight(map.getWidth());
+        }
+    }
+
+    public Road getCurrentRoad(){
+        return map.getRoad(this.position.getX(),this.position.getY());
+    }
+
+    private boolean canMoveForward() {
+        Road position = getCurrentRoad();
+        switch (direction) {
+            case UP:
+                return position.isUp();
+            case DOWN:
+                return position.isDown();
+            case LEFT:
+                return position.isLeft();
+            default:
+                return position.isRight();
+        }
+    }
+
     public int getCoordinateX() {
-        return coordinateX;
+        return position.getX();
     }
 
     public int getCoordinateY() {
-        return coordinateY;
+        return position.getY();
     }
 
     public Direction getDirection() {
