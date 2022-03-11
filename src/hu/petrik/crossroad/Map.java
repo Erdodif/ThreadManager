@@ -53,6 +53,17 @@ public class Map {
         }
     }
 
+    public void startLamps() {
+        for (int i = 0; i < map.size(); i++) {
+            for (int j = 0; j < map.get(i).size(); j++) {
+                Road road = map.get(i).get(j);
+                if (road instanceof Crossing) {
+                    new Thread(()->((Crossing)road).operate()).start();
+                }
+            }
+        }
+    }
+
     public void addDrawer(City.Drawer drawer){
         this.drawer = drawer;
     }

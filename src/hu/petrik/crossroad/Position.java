@@ -33,7 +33,7 @@ public class Position {
     }
 
     public Position getBelow(int height){
-        if(x == height){
+        if(x == height-1){
             return new Position(0,this.y);
         }
         return new Position(this.x+1,this.y);
@@ -47,7 +47,7 @@ public class Position {
     }
 
     public Position getToRight(int width){
-        if(y == width){
+        if(y == width-1){
             return new Position(this.x,0);
         }
         return new Position(this.x,this.y+1);

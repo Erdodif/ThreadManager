@@ -2,38 +2,58 @@ package hu.petrik.crossroad;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class City {
-    static String defaultStyle = Color.BLACK_BACK.toString() + Color.WHITE_FORE.toString();
+    public static String defaultStyle = Color.BLACK_BACK.toString() + Color.WHITE_FORE.toString();
     private Map map;
     private List<Car> cars;
     private Drawer drawer = new Drawer();
+    Random random;
 
-    public City(Map map){
+    public City(Map map) {
         this.map = map;
         this.cars = new ArrayList<>();
+        this.random = new Random();
     }
 
-    public City(Map map, ArrayList<Car>cars){
+    public City(Map map, ArrayList<Car> cars) {
         this.map = map;
         this.cars = cars;
+        this.random = new Random();
     }
 
     public void addCar(Car car) {
         this.cars.add(car);
     }
 
-    public void runCars(){
-        for (Car car:cars) {
+    public void placeRandomCar() {
+        int x = random.nextInt(map.getHeight());
+        int y = random.nextInt(map.getWidth());
+        while (this.map.getRoad(x, y) == null) {
+            x = random.nextInt(map.getHeight());
+            y = random.nextInt(map.getWidth());
+        }
+        this.cars.add(new Car(this.map, x, y));
+    }
+
+    public void placeRandomCars(int amount) {
+        for (int i = 0; i < amount; i++) {
+            this.placeRandomCar();
+        }
+    }
+
+    public void runCars() {
+        for (Car car : cars) {
             new Thread(car::start).start();
         }
     }
 
-    public void printState(){
+    public void printState() {
         System.out.println("Notifying drawer from city");
-        synchronized (this.drawer){
+        synchronized (this.drawer) {
             drawer.notify();
         }
     }
@@ -48,18 +68,17 @@ public class City {
         for (Car car : cars) {
             boby.append(car.toString());
         }
-        return "Cars: " + boby + " \n"+map.toString();
+        return "Cars: " + boby + " \n" + map.toString();
     }
 
-    public class Drawer{
-        public synchronized void monitorChanges(){
+    public class Drawer {
+        public synchronized void monitorChanges() {
             boolean interrupted = false;
-            while (!interrupted){
+            while (!interrupted) {
                 try {
                     wait();
                     printState();
-                }
-                catch (InterruptedException e){
+                } catch (InterruptedException e) {
                     System.out.println("Got interrupted");
                     interrupted = true;
                 }
@@ -68,7 +87,7 @@ public class City {
 
         public void printState() {
             System.out.print("\033[H\033[2J");
-            System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            System.out.println("\n\n\n");
             System.out.flush();
             StringBuilder boby = new StringBuilder();
             for (Car car : cars) {
@@ -77,7 +96,7 @@ public class City {
             ArrayList<Car> carsTemp = new ArrayList<>(cars);
             for (int i = 0; i < map.getHeight(); i++) {
                 for (int j = 0; j < map.getWidth(); j++) {
-                    if (map.getRoad(i,j)== null) {
+                    if (map.getRoad(i, j) == null) {
                         printColored(Color.GREEN_BACK, " ");
                     } else {
                         int finalJ = j;
@@ -87,21 +106,32 @@ public class City {
                         long count = onRoad.count();
                         switch ((int) count) {
                             case 0:
+                                Road road = map.getRoad(i, j);
+                                if (road instanceof Crossing && ((Crossing)road).isYellow()) {
+                                    printColored(Color.YELLOW_BACK,Color.BLACK_FORE,road.toString());
+                                    break;
+                                }
                                 printColored(Color.WHITE_BACK, Color.BLACK_FORE, map.getRoad(i, j).toString());
                                 break;
                             case 1:
                                 onRoad = carsTemp.stream()
                                         .filter(car -> car.getCoordinateX() == finalI && car.getCoordinateY() == finalJ);
                                 Car toPrint = onRoad.collect(Collectors.toList()).get(0);
-                                printColored(Color.WHITE_BACK,Color.BLUE_FORE,toPrint.toString());
+                                printColored(Color.WHITE_BACK, Color.BLUE_FORE, toPrint.toString());
                                 break;
                             default:
-                                printColored(Color.WHITE_BACK,Color.RED_FORE,Long.toString(count));
+                                if (count > 10) {
+                                    printColored(Color.WHITE_BACK, Color.RED_FORE, "X");
+                                    break;
+                                }
+                                printColored(Color.WHITE_BACK, Color.RED_FORE, Long.toString(count));
                                 break;
                         }
                     }
                 }
-                System.out.println();
+                if (i < map.getHeight()) {
+                    System.out.println();
+                }
             }
         }
 

@@ -16,7 +16,7 @@ public class Car {
         this.direction = Direction.fromWay(random.nextInt(4));
         this.from = null;
         this.map = map;
-        this.speed = (random.nextInt(40)+20)*7;
+        this.speed = (random.nextInt(40) + 20) * 7;
     }
 
     public Car(Map map, Position position) {
@@ -25,24 +25,40 @@ public class Car {
         this.direction = Direction.fromWay(random.nextInt(4));
         this.from = null;
         this.map = map;
-        this.speed = (random.nextInt(40)+20)*7;
+        this.speed = (random.nextInt(40) + 20) * 7;
     }
 
-    public synchronized void start(){
+    public synchronized void start() {
         System.out.println("Car started!");
         try {
-            while (true){
+            while (true) {
                 wait(speed);
                 moveOrTurn();
                 map.notifyStateChanged();
             }
-        }
-        catch (InterruptedException e){
+        } catch (InterruptedException e) {
             System.out.println("Car got interrupted");
         }
     }
 
+    private Direction rotateMaybe() {
+        Direction tempDirection = this.direction;
+        Road position = getCurrentRoad();
+        boolean willTurn = random.nextInt(4) == 3;
+        boolean left= random.nextBoolean();
+        if (willTurn){
+            if(left && canMoveForward(Direction.rotateLeft(this.direction))){
+                return Direction.rotateLeft(this.direction);
+            }
+            if (canMoveForward(Direction.rotateRight(this.direction))){
+                return Direction.rotateRight(this.direction);
+            }
+        }
+        return this.direction;
+    }
+
     public void moveOrTurn() {
+        direction = rotateMaybe();
         if (canMoveForward()) {
             this.from = Direction.turnAround(this.direction);
             this.position = getPositionAhead();
@@ -75,6 +91,20 @@ public class Car {
     }
 
     private boolean canMoveForward() {
+        Road position = getCurrentRoad();
+        switch (direction) {
+            case UP:
+                return position.isUp();
+            case DOWN:
+                return position.isDown();
+            case LEFT:
+                return position.isLeft();
+            default:
+                return position.isRight();
+        }
+    }
+
+    private boolean canMoveForward(Direction direction) {
         Road position = getCurrentRoad();
         switch (direction) {
             case UP:
