@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 public class Map {
     ArrayList<ArrayList<Road>> map;
+    City.Drawer drawer;
 
     public Map(String fileName) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(fileName));
@@ -52,6 +53,16 @@ public class Map {
         }
     }
 
+    public void addDrawer(City.Drawer drawer){
+        this.drawer = drawer;
+    }
+
+    public synchronized void notifyStateChanged(){
+        synchronized (this.drawer){
+            this.drawer.notify();
+        }
+    }
+
     public Road getRoad(int x, int y) {
         return map.get(x).get(y);
     }
@@ -75,7 +86,6 @@ public class Map {
         boolean isInner = x - 1 > -1;
         return (isInner && map.get(x - 1).get(y) != null) || (!isInner && getRoad(map.size() - 1, y) != null);
     }
-
 
     public int getHeight(){
         return this.map.size();

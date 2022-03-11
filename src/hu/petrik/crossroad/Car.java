@@ -7,13 +7,16 @@ public class Car {
     private Direction direction;
     private Direction from;
     private Random random;
+    private int speed;
     private Map map;
 
     public Car(Map map, int x, int y) {
-        this.position = new Position(x,y);
+        this.position = new Position(x, y);
         random = new Random();
         this.direction = Direction.fromWay(random.nextInt(4));
         this.from = null;
+        this.map = map;
+        this.speed = (random.nextInt(40)+20)*7;
     }
 
     public Car(Map map, Position position) {
@@ -21,19 +24,41 @@ public class Car {
         random = new Random();
         this.direction = Direction.fromWay(random.nextInt(4));
         this.from = null;
+        this.map = map;
+        this.speed = (random.nextInt(40)+20)*7;
+    }
+
+    public synchronized void start(){
+        System.out.println("Car started!");
+        try {
+            while (true){
+                wait(speed);
+                moveOrTurn();
+                map.notifyStateChanged();
+            }
+        }
+        catch (InterruptedException e){
+            System.out.println("Car got interrupted");
+        }
     }
 
     public void moveOrTurn() {
         if (canMoveForward()) {
-            //TODO
-        }
-        else{
-            //TODO
+            this.from = Direction.turnAround(this.direction);
+            this.position = getPositionAhead();
+        } else {
+            this.direction = random.nextBoolean() ? Direction.rotateLeft(this.direction) : Direction.rotateRight(this.direction);
+            if (!canMoveForward()) {
+                this.direction = Direction.turnAround(this.direction);
+            }
+            if (!canMoveForward()) {
+                this.direction = this.from;
+            }
         }
     }
 
-    public Position getPositionAhead(){
-        switch (getDirection()){
+    public Position getPositionAhead() {
+        switch (getDirection()) {
             case UP:
                 return this.position.getAbove(map.getHeight());
             case DOWN:
@@ -45,8 +70,8 @@ public class Car {
         }
     }
 
-    public Road getCurrentRoad(){
-        return map.getRoad(this.position.getX(),this.position.getY());
+    public Road getCurrentRoad() {
+        return map.getRoad(this.position.getX(), this.position.getY());
     }
 
     private boolean canMoveForward() {
