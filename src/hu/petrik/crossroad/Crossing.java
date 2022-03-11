@@ -1,6 +1,8 @@
 package hu.petrik.crossroad;
 
+import java.util.Collections;
 import java.util.Random;
+import java.util.Stack;
 
 public class Crossing extends Road {
 
@@ -22,10 +24,21 @@ public class Crossing extends Road {
                 wait(speed / 4);
                 yellow = false;
                 updown = !updown;
+                notifyAll();
             }
         } catch (InterruptedException e) {
             System.out.println("Lamp got interrupted!");
         }
+    }
+
+    public boolean canPass(Direction direction){
+        if(isYellow()){
+            return false;
+        }
+        if(updown){
+            return direction == Direction.UP || direction == Direction.DOWN;
+        }
+        return direction == Direction.LEFT || direction == Direction.RIGHT;
     }
 
     public boolean isUpdown() {

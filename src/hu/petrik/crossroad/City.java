@@ -117,14 +117,14 @@ public class City {
                                 onRoad = carsTemp.stream()
                                         .filter(car -> car.getCoordinateX() == finalI && car.getCoordinateY() == finalJ);
                                 Car toPrint = onRoad.collect(Collectors.toList()).get(0);
-                                printColored(Color.WHITE_BACK, Color.BLUE_FORE, toPrint.toString());
+                                printColored(Color.CYAN_BACK, Color.BLACK_FORE, toPrint.toString());
                                 break;
                             default:
                                 if (count > 10) {
                                     printColored(Color.WHITE_BACK, Color.RED_FORE, "X");
                                     break;
                                 }
-                                printColored(Color.WHITE_BACK, Color.RED_FORE, Long.toString(count));
+                                printColored(Color.CYAN_BACK, Color.RED_FORE, Long.toString(count));
                                 break;
                         }
                     }

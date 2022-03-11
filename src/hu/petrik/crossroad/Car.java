@@ -34,7 +34,6 @@ public class Car {
             while (true) {
                 wait(speed);
                 moveOrTurn();
-                map.notifyStateChanged();
             }
         } catch (InterruptedException e) {
             System.out.println("Car got interrupted");
@@ -45,12 +44,12 @@ public class Car {
         Direction tempDirection = this.direction;
         Road position = getCurrentRoad();
         boolean willTurn = random.nextInt(4) == 3;
-        boolean left= random.nextBoolean();
-        if (willTurn){
-            if(left && canMoveForward(Direction.rotateLeft(this.direction))){
+        boolean left = random.nextBoolean();
+        if (willTurn) {
+            if (left && canMoveForward(Direction.rotateLeft(this.direction))) {
                 return Direction.rotateLeft(this.direction);
             }
-            if (canMoveForward(Direction.rotateRight(this.direction))){
+            if (canMoveForward(Direction.rotateRight(this.direction))) {
                 return Direction.rotateRight(this.direction);
             }
         }
@@ -61,6 +60,10 @@ public class Car {
         direction = rotateMaybe();
         if (canMoveForward()) {
             this.from = Direction.turnAround(this.direction);
+            Road ahead = this.map.getRoad(getPositionAhead());
+            if (ahead instanceof Crossing && !((Crossing) ahead).canPass(this.direction)) {
+                return;
+            }
             this.position = getPositionAhead();
         } else {
             this.direction = random.nextBoolean() ? Direction.rotateLeft(this.direction) : Direction.rotateRight(this.direction);
@@ -71,6 +74,7 @@ public class Car {
                 this.direction = this.from;
             }
         }
+        this.map.notifyStateChanged();
     }
 
     public Position getPositionAhead() {

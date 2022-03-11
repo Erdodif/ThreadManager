@@ -74,6 +74,10 @@ public class Map {
         }
     }
 
+    public Road getRoad(Position p){
+        return getRoad(p.getX(),p.getY());
+    }
+
     public Road getRoad(int x, int y) {
         return map.get(x).get(y);
     }
